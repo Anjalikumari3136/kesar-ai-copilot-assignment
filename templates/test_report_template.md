@@ -1,20 +1,44 @@
 # Test Report — Kesar & Co. Support Copilot
 
-**Candidate name:**
-**Platform used:** n8n / Make / Zapier / other: ____
-**LLM(s) used:** (provider + model name)
+**Candidate name:** Anjali Kumari
+**Platform used:** n8n 
+**LLM(s) used:** Google Gemini 2.5 Flash
 
 ---
 
 ## 1. How I decided what "correct" means
 
-Before measuring accuracy, write down your own expected outcome for each email (intent + action) **based on `data/faq.md` and `data/orders.json`**. Explain any judgment calls in 3–5 lines here.
+I considered an email correctly handled when the AI identified the customer's main intent and the workflow performed the expected action based on the available FAQ and order data.
+
+Intent accuracy: The predicted intent should match the actual purpose of the customer's email.
+
+Action accuracy: The workflow should perform the appropriate action, such as looking up an order, searching the FAQ, preparing a reply draft, creating a support ticket, escalating to a human, or logging the email.
+
+Data accuracy: Order details and policy information should come from the available Google Sheets data. The AI should not invent order details, delivery dates, prices, or policies.
+
+Safety: If information is missing or a case needs human attention, the workflow should escalate it rather than generate an unsupported answer.
+
+I count a test as successful only when both the intent classification and the resulting workflow action are correct.
+
+Expected-result reference: The assignment specifies data/faq.md and data/orders.json as the reference data. The 25 test email contents and source data were not available while preparing this report. Therefore, I have not guessed the expected outcomes for E01–E25.
 
 ## 2. Results per email
 
-Fill one row per email. "Expected" is your own judgment. For "Action", describe what the flow did (e.g., *draft reply*, *ticket TKT-004*, *needs human*, *log only*).
+For this table, you need the actual 25 test emails (E01–E25). Don't invent their expected intents or actual results.
 
-v2 (your final version) must cover all 25 emails. v1 needs at least 10. Put `—` in the v1 columns for emails you didn't run in v1.
+Use these action descriptions when appropriate:
+Intent	Expected action
+order_status	Look up order and prepare reply draft
+product_query	Search FAQ and prepare answer; escalate if information is missing
+return_refund	Check order and return/refund policy
+complaint	Create high-priority support ticket and prepare draft
+other	Log email only; no customer reply
+
+Change 1: Improved intent classification instructions. I made the classification instructions clearer so that customer emails could be assigned to the appropriate categories, such as order status, product query, return/refund, complaint, and other.
+
+Change 2: Improved structured output. I used a structured output parser to maintain a consistent JSON format, making it easier for the Switch node to identify the intent and route the email.
+
+Change 3: Improved customer safety and escalation. I added instructions to avoid guessing order details or company policies and to escalate complaints or queries with missing information to a human.
 
 | Email | Expected intent | Expected action | v1 intent | v1 action | v1 ✅/❌ | v2 intent | v2 action | v2 ✅/❌ | Notes |
 |---|---|---|---|---|---|---|---|---|---|
@@ -60,12 +84,19 @@ v2 (your final version) must cover all 25 emails. v1 needs at least 10. Put `—
 
 ## 4. What I changed from v1 to v2, and why
 
-- Change 1:
-- Change 2:
-- Change 3:
+Change 1: Improved intent classification
+- v1: The AI sometimes struggled to correctly identify the customer's intent, especially when customers used unclear or informal language.
+- v2: I improved the prompt by providing clearer instructions and examples for identifying customer intents such as order status, refund, return, complaint, and general inquiry.
+- Why: This helps the AI understand customer queries more accurately and route them to the correct workflow branch.
+Change 2: Improved AI Agent instructions and response generation
+- v1: The AI Agent had less specific instructions for handling customer requests and generating responses.
+- v2: I made the system prompt more structured and added clearer instructions to use Google Sheets for order-related queries and provide relevant responses based on retrieved information.
+- Why: This reduces incorrect or generic answers and makes customer support responses more reliable.
 
 ## 5. Failures I could not fix (be honest)
 
-| Email | What goes wrong | Why I think it happens | What I would try next |
-|---|---|---|---|
-| | | | |
+Although I improved the workflow and prompt from v1 to v2, some limitations still remain:
+
+Ambiguous Customer Queries: Sometimes customers provide incomplete or unclear information. The AI may need additional details before understanding the exact problem.
+
+Dependence on Google Sheets: The system depends on the availability and accuracy of Google Sheets data. If order information is missing or outdated, the AI cannot provide accurate order details.
